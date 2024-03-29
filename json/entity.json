@@ -1,0 +1,27 @@
+{
+    "player":  {
+        "health": 3,
+        "damage": 1,
+        "velocity": 100
+    },
+    "zombie": {
+        "baseZombie":  {
+            "health": 1,
+            "damage": 1,
+            "velocity": 50
+        },
+        "masterZombie":  {
+            "health": 2,
+            "damage": 1,
+            "velocity": 100
+        },
+        "bossZombie":  {
+            "health": 3,
+            "damage": 1,
+            "velocity": 150
+        }
+
+    }
+
+
+}
