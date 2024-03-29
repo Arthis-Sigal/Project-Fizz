@@ -105,6 +105,7 @@ preload ()
         console.log(data);
         this.playerData = data.player;
         this.zombieData = data.zombie;
+        this.testData = data.test;
 
 
     })
@@ -120,7 +121,7 @@ create ()
     this.backSky = this.add.image(550, 90, 'backgroundSky').setScale(0.4);
     this.backTower = this.physics.add.image(550, 135, 'backgroundTower').setScale(0.4);
     this.backTower2 = this.physics.add.image(2080, 135, 'backgroundTower').setScale(0.4);
-    this.backBridge = this.physics.add.image(550, 550, 'backgroundBridge').setScale(0.4);
+    this.backBridge = this.physics.add.image(515, 550, 'backgroundBridge').setScale(0.4);
     this.backBridge2 = this.physics.add.image(2050, 550, 'backgroundBridge').setScale(0.4);
 
     //ajout d'un sprite du joueur
@@ -186,6 +187,7 @@ create ()
     this.zombieLife = this.zombieData.baseZombie.health;
     this.zombieDamage = this.zombieData.baseZombie.damage;
     this.zombieVelocity = -this.zombieData.baseZombie.velocity;
+    this.zombieScore = this.zombieData.baseZombie.score;
 
 
     //ajout des l'animations du zombie
@@ -222,7 +224,17 @@ create ()
 
     }
 
+    //on rajoute un score board
+    this.score = 0;
+    this.scoreBoard = this.add.text(950, 25, 'SCORE : ' + this.score, { 
+        fontStyle: 'bold',
+        fontSize: 32,
+        color: '#ffffff',
+        padding: 10,
+    });
+    
 
+    console.log(this.testData[0]);
 
 
 }
@@ -230,19 +242,18 @@ create ()
 update ()
 {
 
-  
 
 
     //gestion des déplacements des éléments du décor
     if
     (this.backBridge.x < -800)
     {
-        this.backBridge.x = 2050;
+        this.backBridge.x = 2250;
     }
     if
     (this.backBridge2.x < -800)
     {
-        this.backBridge2.x = 2050;
+        this.backBridge2.x = 2250;
     }
     if
     (this.backTower.x < -800)
@@ -470,6 +481,9 @@ update ()
     { 
         //console.log('mort' + this.zombieLife);
 
+        this.score += this.zombieScore;
+        this.scoreBoard.setText('SCORE : ' + this.score);
+
         this.zombie.x = 1200;
         //on tire une chiffre au sort
         let tirageZombie = Phaser.Math.Between(1, 3);
@@ -478,18 +492,21 @@ update ()
                 this.zombieLife = this.zombieData.baseZombie.health;
                 this.zombieDamage = this.zombieData.baseZombie.damage;
                 this.zombieVelocity = -this.zombieData.baseZombie.velocity;
+                this.zombieScore = this.zombieData.baseZombie.score;
                 this.zombie.anims.play('walkZombieBase', true);
                 break; 
             case 2:
                 this.zombieLife = this.zombieData.masterZombie.health;
                 this.zombieDamage = this.zombieData.masterZombie.damage;
                 this.zombieVelocity = -this.zombieData.masterZombie.velocity;
+                this.zombieScore = this.zombieData.masterZombie.score;
                 this.zombie.anims.play('walkZombieMaster', true);
                 break;
             case 3:
                 this.zombieLife = this.zombieData.bossZombie.health;
                 this.zombieDamage = this.zombieData.bossZombie.damage;
                 this.zombieVelocity = -this.zombieData.bossZombie.velocity;
+                this.zombieScore = this.zombieData.bossZombie.score;
                 this.zombie.anims.play('walkZombieBoss', true);
                 break;
 

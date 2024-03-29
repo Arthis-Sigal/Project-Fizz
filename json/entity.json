@@ -8,20 +8,32 @@
         "baseZombie":  {
             "health": 1,
             "damage": 1,
-            "velocity": 50
+            "velocity": 50,
+            "score": 1
         },
         "masterZombie":  {
             "health": 2,
             "damage": 1,
-            "velocity": 100
+            "velocity": 100,
+            "score": 2
         },
         "bossZombie":  {
             "health": 3,
             "damage": 1,
-            "velocity": 150
+            "velocity": 150,
+            "score" : 3
         }
 
-    }
+    },
+    "test" : [
+        {
+            "name": "test1",
+            "value": 1
+        },
+        {
+            "name": "test2",
+            "value": 2
+        }]
 
 
 }
