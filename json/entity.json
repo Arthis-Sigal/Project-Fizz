@@ -4,27 +4,57 @@
         "damage": 1,
         "velocity": 100
     },
-    "zombie": {
-        "baseZombie":  {
+    "zombie": [
+        {
+            "name": "baseZombie",
+            "type": "zombie",
+            "class": "mele",
             "health": 1,
             "damage": 1,
             "velocity": 50,
-            "score": 1
+            "score": 1,
+            "spawnRate": 0.3,
+            "walkAnimation": "baseZombieWalk",
+            "hurtAnimation": "baseZombieHurt"
         },
-        "masterZombie":  {
+        {
+            "name": "masterZombie",
+            "type": "zombie",
+            "class": "mele",
             "health": 2,
             "damage": 1,
             "velocity": 100,
-            "score": 2
+            "score": 2,
+            "spawnRate": 0.4,
+            "walkAnimation": "masterZombieWalk",
+            "hurtAnimation": "masterZombieHurt"
         },
-        "bossZombie":  {
-            "health": 3,
+        {
+            "name": "bossZombie",
+            "type": "zombie",
+            "class": "mele",
+            "health": 4,
             "damage": 1,
             "velocity": 150,
-            "score" : 3
+            "score" : 3,
+            "spawnRate": 0.3,
+            "walkAnimation": "bossZombieWalk",
+            "hurtAnimation": "bossZombieHurt"
+        },
+        {
+            "name": "archeryZombie",
+            "type": "zombie",
+            "class": "archery",
+            "health": 1,
+            "damage": 1,
+            "velocity": 30,
+            "score": 5,
+            "spawnRate": 0.2,
+            "walkAnimation": "archeryZombieWalk",
+            "hurtAnimation": "archeryZombieHurt"
         }
 
-    },
+    ],
     "test" : [
         {
             "name": "test1",

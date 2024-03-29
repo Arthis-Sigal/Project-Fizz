@@ -60,6 +60,25 @@ class GameScene extends Phaser.Scene {
 
 preload ()
 {
+    const url = 'json/entity.json';
+    fetch(url)
+    .then(response => {
+        if (!response.ok) {
+        throw new Error('Erreur lors de la récupération du fichier JSON');
+        }
+        return response.json();
+    })
+    .then(data => {
+        this.playerData = data.player;
+        this.zombieData = data.zombie;
+        this.testData = data.test;
+
+
+    })
+    .catch(error => {
+        console.error('Erreur :', error);
+    });
+
     this.load.image('backgroundBridge', 'assets/niveau1/bridge.png');
     this.load.image('backgroundTower', 'assets/niveau1/tower.png');
     this.load.image('backgroundSky', 'assets/niveau1/sky.png');
@@ -73,9 +92,15 @@ preload ()
     this.load.spritesheet('playerDie', 'assets/chevalier/dead.png', { frameWidth: 90, frameHeight: 86 });
 
     //load des sprite zombie
-    this.load.spritesheet('zombieWalkBase', 'assets/baseZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
-    this.load.spritesheet('zombieWalkMaster', 'assets/masterZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
-    this.load.spritesheet('zombieWalkBoss', 'assets/bossZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
+    this.load.spritesheet('baseZombieWalk', 'assets/baseZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
+    this.load.spritesheet('baseZombieHurt', 'assets/baseZombie/hurt.png', { frameWidth: 90, frameHeight: 86 });
+
+    this.load.spritesheet('masterZombieWalk', 'assets/masterZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
+    this.load.spritesheet('masterZombieHurt', 'assets/masterZombie/hurt.png', { frameWidth: 90, frameHeight: 86 });
+
+
+    this.load.spritesheet('bossZombieWalk', 'assets/bossZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
+    this.load.spritesheet('bossZombieHurt', 'assets/bossZombie/hurt.png', { frameWidth: 90, frameHeight: 86 });
 
 
     this.load.image('heart', 'assets/heart/heart.png');
@@ -93,25 +118,7 @@ preload ()
     this.sound.setVolume(2, 'gameover');
 
 
-    const url = 'json/entity.json';
-    fetch(url)
-    .then(response => {
-        if (!response.ok) {
-        throw new Error('Erreur lors de la récupération du fichier JSON');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data);
-        this.playerData = data.player;
-        this.zombieData = data.zombie;
-        this.testData = data.test;
-
-
-    })
-    .catch(error => {
-        console.error('Erreur :', error);
-    });
+    
 
 }
 
@@ -181,36 +188,36 @@ create ()
 
     let baseY = Phaser.Math.Between(200, 600);
     this.zombie = this.physics.add.sprite(1200, baseY).setScale(3);
-    this.zombie.body.setSize(35, 64);
+    this.zombie.body.setSize(50, 64);
     this.zombie.body.offset.y = 22;
-    this.zombie.body.offset.x = 55;
-    this.zombieLife = this.zombieData.baseZombie.health;
-    this.zombieDamage = this.zombieData.baseZombie.damage;
-    this.zombieVelocity = -this.zombieData.baseZombie.velocity;
-    this.zombieScore = this.zombieData.baseZombie.score;
+    this.zombie.body.offset.x = 45;
+    this.zombieLife = this.zombieData[0].health;
+    this.zombieDamage = this.zombieData[0].damage;
+    this.zombieVelocity = -this.zombieData[0].velocity;
+    this.zombieScore = this.zombieData[0].score;
+    this.tirageZombie = 0;
 
 
     //ajout des l'animations du zombie
-    this.anims.create({
-        key: 'walkZombieBase',
-        frames: this.anims.generateFrameNumbers('zombieWalkBase', { start: 7, end: 0 }),
-        frameRate: 7,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'walkZombieMaster',
-        frames: this.anims.generateFrameNumbers('zombieWalkMaster', { start: 7, end: 0 }),
-        frameRate: 7,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'walkZombieBoss',
-        frames: this.anims.generateFrameNumbers('zombieWalkBoss', { start: 7, end: 0 }),
-        frameRate: 7,
-        repeat: -1
-    });
+    for (let i = 0; i < this.zombieData.length; i++) {
+        this.anims.create({
+            key: this.zombieData[i].walkAnimation,
+            frames: this.anims.generateFrameNumbers(this.zombieData[i].walkAnimation, { start: 7, end: 0 }),
+            frameRate: 7,
+            repeat: -1
+        });
+    }
+
+    for (let i = 0; i < this.zombieData.length; i++) {
+        this.anims.create({
+            key: this.zombieData[i].hurtAnimation,
+            frames: this.anims.generateFrameNumbers(this.zombieData[i].hurtAnimation, { start: 3, end: 0 }),
+            frameRate: 7
+        });
+    }
+
     //on joue l'annimation de base du zombie
-    this.zombie.anims.play('walkZombieBase', true);
+    this.zombie.anims.play(this.zombieData[0].walkAnimation, true);
     
     
     //detection du joueur qui se déplace
@@ -232,9 +239,9 @@ create ()
         color: '#ffffff',
         padding: 10,
     });
-    
 
-    console.log(this.testData[0]);
+    this.input.keyboard.enabled = true;
+    
 
 
 }
@@ -279,8 +286,10 @@ update ()
 
         this.physics.add.overlap(this.hitBoxAttack, this.zombie, () => {
         this.zombieLife -= this.playerDamage;
-           this.zombie.x += 100;
-           this.sound.play('zombiecry');
+            this.zombie.x += 100;
+            this.zombie.setVelocityX(0);
+            this.zombie.anims.play(this.zombieData[this.tirageZombie].hurtAnimation, true);
+            this.sound.play('zombiecry');
         })
 
         //on crée une hit box pour l'attaque invisible        
@@ -289,28 +298,16 @@ update ()
         this.player.setVelocityY(0);
         //on tire au hasard l'attaque
         let attack = Phaser.Math.Between(1, 3);
-        switch (attack) {
-            case 1:
-                this.player.anims.play('attack1', true);
-                this.sound.play('attack1');
 
-                break; 
-            case 2:
-                this.player.anims.play('attack2', true);
-                this.sound.play('attack2');
-
-                break;
-            case 3:
-                this.player.anims.play('attack3', true);
-                this.sound.play('attack3');
-
-                break;
-        }
+        this.player.anims.play('attack' + attack, true);
+        this.sound.play('attack' + attack);
+        
         this.playerMvt = false;
 
         this.player.once('animationcomplete', () => {
             this.hitBoxAttack.destroy();
             this.player.anims.play('idle', true);
+            this.zombie.anims.play(this.zombieData[this.tirageZombie].walkAnimation, true);
         });
 
 
@@ -486,35 +483,18 @@ update ()
 
         this.zombie.x = 1200;
         //on tire une chiffre au sort
-        let tirageZombie = Phaser.Math.Between(1, 3);
-        switch (tirageZombie) {
-            case 1:
-                this.zombieLife = this.zombieData.baseZombie.health;
-                this.zombieDamage = this.zombieData.baseZombie.damage;
-                this.zombieVelocity = -this.zombieData.baseZombie.velocity;
-                this.zombieScore = this.zombieData.baseZombie.score;
-                this.zombie.anims.play('walkZombieBase', true);
-                break; 
-            case 2:
-                this.zombieLife = this.zombieData.masterZombie.health;
-                this.zombieDamage = this.zombieData.masterZombie.damage;
-                this.zombieVelocity = -this.zombieData.masterZombie.velocity;
-                this.zombieScore = this.zombieData.masterZombie.score;
-                this.zombie.anims.play('walkZombieMaster', true);
-                break;
-            case 3:
-                this.zombieLife = this.zombieData.bossZombie.health;
-                this.zombieDamage = this.zombieData.bossZombie.damage;
-                this.zombieVelocity = -this.zombieData.bossZombie.velocity;
-                this.zombieScore = this.zombieData.bossZombie.score;
-                this.zombie.anims.play('walkZombieBoss', true);
-                break;
+        this.tirageZombie = Phaser.Math.Between(0, this.zombieData.length - 1);
 
+            this.zombieLife = this.zombieData[this.tirageZombie].health;
+            this.zombieDamage = this.zombieData[this.tirageZombie].damage;
+            this.zombieVelocity = -this.zombieData[this.tirageZombie].velocity;
+            this.zombieScore = this.zombieData[this.tirageZombie].score;
+            this.zombie.anims.play(this.zombieData[this.tirageZombie].walkAnimation, true);
         }
     }
 
 
-}
+
 
 }
 
@@ -529,7 +509,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false
+            debug: true
         }
     }
 };
