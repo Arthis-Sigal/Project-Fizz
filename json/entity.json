@@ -47,23 +47,13 @@
             "class": "archery",
             "health": 1,
             "damage": 1,
-            "velocity": 30,
+            "velocity": 50,
             "score": 5,
             "spawnRate": 0.2,
             "walkAnimation": "archeryZombieWalk",
             "hurtAnimation": "archeryZombieHurt"
         }
-
-    ],
-    "test" : [
-        {
-            "name": "test1",
-            "value": 1
-        },
-        {
-            "name": "test2",
-            "value": 2
-        }]
+    ]
 
 
 }

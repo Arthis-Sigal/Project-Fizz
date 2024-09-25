@@ -102,6 +102,10 @@ preload ()
     this.load.spritesheet('bossZombieWalk', 'assets/bossZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
     this.load.spritesheet('bossZombieHurt', 'assets/bossZombie/hurt.png', { frameWidth: 90, frameHeight: 86 });
 
+    this.load.spritesheet('archeryZombieWalk', 'assets/archeryZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
+    this.load.spritesheet('archeryZombieHurt', 'assets/archeryZombie/walk.png', { frameWidth: 90, frameHeight: 86 });
+    this.load.image('arrow', 'assets/arrow/arrow.png');
+
 
     this.load.image('heart', 'assets/heart/heart.png');
 
@@ -384,30 +388,108 @@ update ()
 
     }
 
-
     //"ia" zombie
-    this.zombie.setVelocityX(0);
-    this.zombie.setVelocityY(0);
-    if (this.zombie.x > this.player.x)
-    {
-        this.zombie.setVelocityX(this.zombieVelocity);
-    }
-    if (this.zombie.y < this.player.y)
-    {
-        this.zombie.setVelocityY(-this.zombieVelocity);
-    }
-    else if (this.zombie.y > this.player.y)
-    {
-        this.zombie.setVelocityY(this.zombieVelocity);
-    }
-    else if (this.zombie.y === this.player.y)
-    {
+    if (this.tirageZombie != 3) {
+        this.zombie.setVelocityX(0);
         this.zombie.setVelocityY(0);
-    }
-    if (this.playerMvt === true)
-    {
-        this.zombie.setVelocityX(this.zombieVelocity - 80);
-    }
+        if (this.zombie.x > this.player.x)
+        {
+            this.zombie.setVelocityX(this.zombieVelocity);
+        }
+        if (this.zombie.y < this.player.y)
+        {
+            this.zombie.setVelocityY(-this.zombieVelocity);
+        }
+        else if (this.zombie.y > this.player.y)
+        {
+            this.zombie.setVelocityY(this.zombieVelocity);
+        }
+        else if (this.zombie.y === this.player.y)
+        {
+            this.zombie.setVelocityY(0);
+        }
+        if (this.playerMvt === true)
+        {
+            this.zombie.setVelocityX(this.zombieVelocity - 80);
+        }
+
+    } else {
+        //zombie archer
+        this.zombie.setVelocityX(0);
+        this.zombie.setVelocityY(0);
+        if (this.zombie.x > this.player.x && this.zombie.x > 850)
+        {
+            this.zombie.setVelocityX(this.zombieVelocity);
+        }
+        if (this.zombie.y < this.player.y)
+        {
+            this.zombie.setVelocityY(-this.zombieVelocity);
+        }
+        else if (this.zombie.y > this.player.y)
+        {
+            this.zombie.setVelocityY(this.zombieVelocity);
+        }
+        else if (this.zombie.y === this.player.y)
+        {
+            this.zombie.setVelocityY(0);
+        }
+        if (this.playerMvt === true && this.zombie.x > 850)
+        {
+            this.zombie.setVelocityX(this.zombieVelocity - 80);
+        }
+        if (this.playerMvt === true && this.zombie.x < 850)
+        {
+            this.zombie.setVelocityX(-80);
+        }
+        //tout les 2 secondes le zombie tire une fléche
+        if (this.zombie.x < 900)
+        {   
+            if (this.arrow == undefined) {
+                this.arrow = this.physics.add.sprite(this.zombie.x, this.zombie.y, 'arrow').setScale(1);
+                this.arrow.setVelocityX(-200);
+                this.arrow.setVelocityY(0);
+                this.arrowLunched = true;
+                
+                this.physics.add.overlap(this.arrow, this.player, () => {
+                    this.playerLife -= 1;
+                    this.player.anims.play('hurt', true);
+                    this.sound.play('playercry');
+                    this.player.x -= 100;
+                    this.player.setVelocityY(0);
+                    this.arrow.destroy();
+                    this.arrowLunched = false;
+  
+                    this.playerMvt = false;
+                    this.hearts.getChildren()[this.playerLife].destroy();
+
+                    this.player.once('animationcomplete', () => {
+                        this.player.anims.play('idle', true);
+                        this.player.setVelocityX(0);
+                        this.arrow = undefined;
+                        //console.log( this.arrow)
+                    });
+                });
+                if (this.arrowLunched === true) {
+                    this.time.addEvent({
+                    delay: 7000,
+                    callback: () => {
+                        if (this.arrowLunched == true) {
+                                this.arrowLunched = false;
+                                this.arrow.destroy();
+                                this.arrow = undefined;
+                                //console.log( this.arrow)
+                                //console.log('arrow destroyed');
+                            }
+                          
+                        
+                    }
+                });
+
+                }
+                
+            }
+
+    }}
 
 
     //gestion des colision zombie joueur
@@ -424,7 +506,7 @@ update ()
             this.player.anims.play('idle', true);
             this.player.setVelocityX(0);
         });
-        console.log(this.playerLife);
+        //console.log(this.playerLife);
         this.player.once('animationcomplete', () => {
             if (this.playerLife <= 0)
             {
@@ -444,7 +526,7 @@ update ()
                     //un fois l'écran de mort affiché on sort de la boucle
 
                 if (this.deathScreen == undefined) {
-                    console.log('mort');
+                    //console.log('mort');
                     this.add.text(600, 400, 'YOU DIED', { 
                         fontSize: 64,
                         color: '#000000',
@@ -495,8 +577,8 @@ update ()
 
 
 
-
 }
+
 
 
 const config = {
@@ -509,7 +591,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     }
 };
